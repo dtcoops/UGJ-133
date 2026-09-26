@@ -135,7 +135,11 @@ public class CatController : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        if (groundCheck == null) return;
+        if (groundCheck == null) 
+        {
+            return;
+        }
+
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
