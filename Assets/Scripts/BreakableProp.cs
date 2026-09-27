@@ -52,10 +52,16 @@ public class BreakableProp : MonoBehaviour
         PlayBreakSFX();
 
         Debug.Log($"Broke {gameObject.name}, worth {scoreValue} points!");
+        ReportScore();
         Destroy(gameObject);
     }
 
     #region Helpers
+    void ReportScore()
+    {
+        ScoreManager.Instance.AddScore(scoreValue);
+    }
+
     void PlayBreakVFX()
     {
         if (breakEffectPrefab != null)
