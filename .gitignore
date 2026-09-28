@@ -104,3 +104,17 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+
+
+
+# Low Poly Human (Samuel Gauthier): free to use, but not licensed for redistribution
+/Assets/LowPolyHuman2.obj
+/Assets/LowPolyHuman2.obj.meta
+
+# Pixabay audio: licence doesn't allow redistributing the files
+/Assets/Sounds/
+/Assets/Sounds.meta
+
+# IDE-generated
+*.slnx
