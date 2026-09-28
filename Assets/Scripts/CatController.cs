@@ -18,17 +18,32 @@ public class CatController : MonoBehaviour
     public float groundCheckRadius = 0.3f;
     public LayerMask groundMask;
 
+    [Header("Sprint Settings")]
+    public float sprintSpeedMultiplier = 1.8f;
+    public float maxStamina = 100f;
+    public float staminaDrainRate = 30f;
+    public float staminaRegenRate = 15f;
+
+    [Header("Audio")]
+    public AudioClip jumpSound;
+    [Range(0f, 1f)] public float jumpSoundVolume = 1f;
+
     private Rigidbody rb;
     private Camera cam;
 
     private float coyoteTimer;
     private float jumpBufferTimer;
+    private float stamina;
+    private bool isSprinting;
     private bool isGrounded;
+
+    public float StaminaPercent => stamina / maxStamina;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         cam = Camera.main;
+        stamina = maxStamina;
     }
 
     void Update()
@@ -37,6 +52,7 @@ public class CatController : MonoBehaviour
 
         UpdateCoyoteTimer();
         UpdateJumpBufferTimer();
+        UpdateStamina();
         
         if (CanJump())
         {
@@ -67,8 +83,35 @@ public class CatController : MonoBehaviour
 
     void Jump()
     {
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // Reset
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+        PlayJumpSound();
+    }
+
+    void UpdateStamina()
+    {
+        bool wantsToSprint = Input.GetButton("Sprint") && stamina > 0f;
+
+        if (wantsToSprint)
+        {
+            stamina -= staminaDrainRate * Time.deltaTime;
+            isSprinting = stamina > 0f;
+        }
+        else
+        {
+            stamina += staminaRegenRate * Time.deltaTime;
+            isSprinting = false;
+        }
+
+        stamina = Mathf.Clamp(stamina, 0f, maxStamina);
+    }
+
+    void PlayJumpSound()
+    {
+        if (jumpSound != null)
+        {
+            AudioSource.PlayClipAtPoint(jumpSound, transform.position, jumpSoundVolume);
+        }
     }
 
     #endregion
@@ -89,8 +132,11 @@ public class CatController : MonoBehaviour
     }
 
     void UpdateVelocity(Vector3 moveDirection)
-    {
-        Vector3 targetVelocity = moveDirection * moveSpeed;
+    {   
+        // Normal Speed or Sprint
+        float currentSpeed = isSprinting ? moveSpeed * sprintSpeedMultiplier : moveSpeed;
+
+        Vector3 targetVelocity = moveDirection * currentSpeed;
         Vector3 velChange = targetVelocity - new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         velChange = Vector3.ClampMagnitude(velChange, acceleration * Time.fixedDeltaTime);
         rb.AddForce(velChange, ForceMode.VelocityChange);
